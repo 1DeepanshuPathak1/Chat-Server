@@ -1,4 +1,3 @@
-require('dotenv').config();
 const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
@@ -6,36 +5,24 @@ const cors = require('cors');
 const { initializeApp, cert } = require('firebase-admin/app');
 const { getFirestore } = require('firebase-admin/firestore');
 
-console.log('Environment Variables:', {
-  FIREBASE_PROJECT_ID: process.env.FIREBASE_PROJECT_ID,
-  FIREBASE_CLIENT_EMAIL: process.env.FIREBASE_CLIENT_EMAIL,
-  FIREBASE_DATABASE_URL: process.env.FIREBASE_DATABASE_URL,
-  FIREBASE_PRIVATE_KEY: !!process.env.FIREBASE_PRIVATE_KEY ? 'Defined' : 'Undefined'
-});
-
-if (!process.env.FIREBASE_PRIVATE_KEY) {
-  console.error('Error: FIREBASE_PRIVATE_KEY is not defined in .env');
-  process.exit(1);
-}
-
-let privateKey = process.env.FIREBASE_PRIVATE_KEY;
-
-if (privateKey.startsWith('"') && privateKey.endsWith('"')) {
-  privateKey = privateKey.slice(1, -1);
-}
-
-privateKey = privateKey.replace(/\\n/g, '\n');
+require('dotenv').config();
 
 const serviceAccount = {
   projectId: process.env.FIREBASE_PROJECT_ID,
   clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-  privateKey: privateKey
+  privateKey: process.env.FIREBASE_PRIVATE_KEY ? process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n') : undefined,
+  databaseURL: process.env.FIREBASE_DATABASE_URL
 };
+
+if (!serviceAccount.projectId || !serviceAccount.clientEmail || !serviceAccount.privateKey) {
+  console.error('Error: Missing required Firebase configuration');
+  process.exit(1);
+}
 
 try {
   initializeApp({
     credential: cert(serviceAccount),
-    databaseURL: process.env.FIREBASE_DATABASE_URL
+    databaseURL: serviceAccount.databaseURL
   });
   console.log('Firebase Admin initialized successfully');
 } catch (error) {
