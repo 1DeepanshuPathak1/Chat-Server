@@ -1,0 +1,8 @@
+[build]
+command = "cd server && npm install"
+
+[deploy]
+startCommand = "cd server && npm start"
+
+[env]
+PORT = "3001"
