@@ -2,7 +2,7 @@
 command = "npm install"
 
 [deploy]
-startCommand = "npm start"
+startCommand = "node index.js"
 
 [env]
 PORT = "3001"
